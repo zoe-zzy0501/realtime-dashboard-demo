@@ -8,6 +8,10 @@
 - 成交量
 - 最近几条数据
 
+在线演示：
+
+https://zoe-zzy0501-realtime-dashboard-demo-app-5qwn4d.streamlit.app/
+
 运行方法：
 
 Mac 可以直接双击文件夹里的 `启动本地看板.command`。第一次运行需要等待安装依赖，随后浏览器会自动打开：
