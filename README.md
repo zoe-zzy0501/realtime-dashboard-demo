@@ -1,6 +1,8 @@
-# 模拟实时行情
+# 模拟期货行情看板
 
-这个 demo 用随机数据模拟两个期货品种，页面上会显示：
+这是一个用 Streamlit 做的行情展示 demo。目前先用随机游走模拟棕榈油和豆油，主要是把 Python 数据更新、网页展示和云端部署这条路径跑通。
+
+页面包括：
 
 - 最新价、涨跌、买价和卖价
 - 1 分钟 K 线
@@ -8,21 +10,21 @@
 - 成交量
 - 最近几条数据
 
-在线演示：
+在线页面：
 
 https://zoe-zzy0501-realtime-dashboard-demo-app-5qwn4d.streamlit.app/
 
-运行方法：
+## 本地运行
 
-Mac 可以直接双击文件夹里的 `启动本地看板.command`。第一次运行需要等待安装依赖，随后浏览器会自动打开：
+Mac 可以直接双击 `启动本地看板.command`。第一次会安装依赖，稍等一会儿浏览器就会打开：
 
 ```text
 http://localhost:8501
 ```
 
-如果看到 Streamlit 询问 `Email:`，邮箱不用填写，直接按回车即可。
+如果 Streamlit 询问 `Email:`，不用填写，直接按回车。
 
-也可以在终端运行：
+也可以在终端中运行：
 
 ```bash
 /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 -m venv .dashboard_env
@@ -30,16 +32,18 @@ http://localhost:8501
 .dashboard_env/bin/python -m streamlit run app.py --browser.gatherUsageStats false
 ```
 
-现在是每 3 秒增加一根模拟 K 线。以后把生成随机价格的部分换成真实行情即可。
+现在每 3 秒增加一条模拟数据。网页上的一分钟 K 线只是演示效果，所以时间走得比真实行情快。
 
-`localhost` 只能在当前电脑访问。要让其他人通过固定网址打开，需要把这个文件夹部署到 Streamlit Community Cloud 等云端服务。
+`localhost` 只能在当前电脑打开；上面的在线页面由 Streamlit Community Cloud 运行，可以直接发给其他人。
 
-## 换成真实数据
+## 数据从哪里换
 
-数据读取单独放在 `data_source.py` 中。现在的 `get_new_bar()` 用随机数生成一条 K 线，返回：
+模拟数据放在 `data_source.py`。其中的 `get_new_bar()` 每次返回一条数据：
 
 ```text
 时间、开、高、低、收、成交量
 ```
 
-以后只需要修改这个函数，让它从真实行情接口、数据库或本地指标程序读取数据，并保持这几个返回字段不变。`app.py` 中的报价、K 线、均线、成交量和表格不需要重新写。
+接真实行情时，改这个函数，让它从 API 或数据库读取最新结果，并保留这几个字段。页面上的报价、K 线、均线和表格可以继续使用。
+
+如果指标程序仍然运行在本地电脑，需要先把结果写入一个云端数据库或 API；部署在云端的网页不能直接读取本地文件和变量。

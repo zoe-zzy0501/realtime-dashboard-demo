@@ -8,9 +8,9 @@ from plotly.subplots import make_subplots
 from data_source import get_new_bar
 
 
-st.set_page_config(page_title="模拟实时行情", layout="wide")
-st.title("模拟期货实时行情")
-st.caption("目前使用随机数据，每 3 秒更新一次")
+st.set_page_config(page_title="模拟期货行情", layout="wide")
+st.title("模拟期货行情")
+st.caption("随机数据演示，每 3 秒刷新一次")
 
 
 products = {
@@ -19,7 +19,7 @@ products = {
 }
 
 
-# 第一次打开页面时，先准备 30 根 K 线
+# 第一次打开时先放 30 条数据，不然图表是空的
 if "market_data" not in st.session_state:
     st.session_state.market_data = {}
 
@@ -45,17 +45,15 @@ if "market_data" not in st.session_state:
             last_price = bar["收"]
             last_time = bar["时间"]
 
-        st.session_state.market_data[name] = pd.DataFrame(
-            rows,
-            columns=["时间", "开", "高", "低", "收", "成交量"],
-        )
+        columns = ["时间", "开", "高", "低", "收", "成交量"]
+        st.session_state.market_data[name] = pd.DataFrame(rows, columns=columns)
 
 
 @st.fragment(run_every="3s")
 def show_market():
-    left, right = st.columns(2)
+    panels = st.columns(2)
 
-    for panel, (name, start_price) in zip([left, right], products.items()):
+    for panel, (name, start_price) in zip(panels, products.items()):
         data = st.session_state.market_data[name]
         old_price = int(data.iloc[-1]["收"])
 
@@ -98,11 +96,10 @@ def show_market():
             )
 
             chart_data = data.copy()
-            chart_data["MA5"] = chart_data["收"].rolling(5).mean()
-            chart_data["MA10"] = chart_data["收"].rolling(10).mean()
-            chart_data["MA20"] = chart_data["收"].rolling(20).mean()
+            for days in [5, 10, 20]:
+                chart_data[f"MA{days}"] = chart_data["收"].rolling(days).mean()
 
-            figure = make_subplots(
+            fig = make_subplots(
                 rows=2,
                 cols=1,
                 shared_xaxes=True,
@@ -110,7 +107,7 @@ def show_market():
                 vertical_spacing=0.04,
             )
 
-            figure.add_trace(
+            fig.add_trace(
                 go.Candlestick(
                     x=data["时间"],
                     open=data["开"],
@@ -127,33 +124,22 @@ def show_market():
                 col=1,
             )
 
-            figure.add_trace(
-                go.Scatter(
-                    x=chart_data["时间"], y=chart_data["MA5"], name="MA5"
-                ),
-                row=1,
-                col=1,
-            )
-            figure.add_trace(
-                go.Scatter(
-                    x=chart_data["时间"], y=chart_data["MA10"], name="MA10"
-                ),
-                row=1,
-                col=1,
-            )
-            figure.add_trace(
-                go.Scatter(
-                    x=chart_data["时间"], y=chart_data["MA20"], name="MA20"
-                ),
-                row=1,
-                col=1,
-            )
+            for days in [5, 10, 20]:
+                fig.add_trace(
+                    go.Scatter(
+                        x=chart_data["时间"],
+                        y=chart_data[f"MA{days}"],
+                        name=f"MA{days}",
+                    ),
+                    row=1,
+                    col=1,
+                )
 
             bar_colors = [
                 "#ef5350" if close >= open_ else "#26a69a"
                 for open_, close in zip(data["开"], data["收"])
             ]
-            figure.add_trace(
+            fig.add_trace(
                 go.Bar(
                     x=data["时间"],
                     y=data["成交量"],
@@ -164,7 +150,7 @@ def show_market():
                 col=1,
             )
 
-            figure.update_layout(
+            fig.update_layout(
                 height=520,
                 margin=dict(l=10, r=10, t=25, b=10),
                 xaxis_rangeslider_visible=False,
@@ -172,11 +158,11 @@ def show_market():
                 plot_bgcolor="white",
                 paper_bgcolor="white",
             )
-            figure.update_xaxes(showgrid=True, gridcolor="#eeeeee")
-            figure.update_yaxes(showgrid=True, gridcolor="#eeeeee")
+            fig.update_xaxes(showgrid=True, gridcolor="#eeeeee")
+            fig.update_yaxes(showgrid=True, gridcolor="#eeeeee")
 
             st.plotly_chart(
-                figure,
+                fig,
                 width="stretch",
                 config={"displayModeBar": False},
                 key=f"chart_{name}",
