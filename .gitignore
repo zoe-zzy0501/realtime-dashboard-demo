@@ -1,0 +1,7 @@
+.venv/
+.dashboard_env/
+__pycache__/
+*.py[cod]
+.DS_Store
+.Rhistory
+.streamlit/credentials.toml
