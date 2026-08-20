@@ -1,7 +1,13 @@
+# Local Python environments and generated caches
 .venv/
 .dashboard_env/
 __pycache__/
 *.py[cod]
+.ipynb_checkpoints/
+
+# Local operating-system and analysis files
 .DS_Store
 .Rhistory
+
+# Developer-specific Streamlit settings
 .streamlit/credentials.toml

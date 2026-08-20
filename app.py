@@ -1,3 +1,5 @@
+"""Streamlit page for the simulated futures market dashboard."""
+
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -8,28 +10,35 @@ from plotly.subplots import make_subplots
 from data_source import get_new_bar
 
 
-st.set_page_config(page_title="模拟期货行情", layout="wide")
-st.title("模拟期货行情")
-st.caption("随机数据演示，每 3 秒刷新一次")
+PAGE_TITLE = "模拟期货行情"
+REFRESH_SECONDS = 3
+REFRESH_INTERVAL = f"{REFRESH_SECONDS}s"
+INITIAL_BAR_COUNT = 30
+CHART_BAR_COUNT = 40
+MOVING_AVERAGE_WINDOWS = (5, 10, 20)
+RECENT_ROW_COUNT = 6
 
-
-products = {
+PRODUCTS = {
     "棕榈油 2609": 9437,
     "豆油 2609": 8485,
 }
 
+st.set_page_config(page_title=PAGE_TITLE, layout="wide")
+st.title(PAGE_TITLE)
+st.caption(f"随机数据演示，每 {REFRESH_SECONDS} 秒刷新一次")
 
-# 第一次打开时先放 30 条数据，不然图表是空的
+
+# 第一次打开时先准备一段历史数据，避免图表为空
 if "market_data" not in st.session_state:
     st.session_state.market_data = {}
 
-    for name, start_price in products.items():
+    for name, start_price in PRODUCTS.items():
         rows = []
-        start_time = datetime.now() - timedelta(minutes=29)
+        start_time = datetime.now() - timedelta(minutes=INITIAL_BAR_COUNT - 1)
         last_price = start_price
         last_time = start_time - timedelta(minutes=1)
 
-        for _ in range(30):
+        for _ in range(INITIAL_BAR_COUNT):
             bar = get_new_bar(name, last_price, last_time)
 
             rows.append(
@@ -49,11 +58,11 @@ if "market_data" not in st.session_state:
         st.session_state.market_data[name] = pd.DataFrame(rows, columns=columns)
 
 
-@st.fragment(run_every="3s")
+@st.fragment(run_every=REFRESH_INTERVAL)
 def show_market():
     panels = st.columns(2)
 
-    for panel, (name, start_price) in zip(panels, products.items()):
+    for panel, (name, start_price) in zip(panels, PRODUCTS.items()):
         data = st.session_state.market_data[name]
         old_price = int(data.iloc[-1]["收"])
 
@@ -69,7 +78,7 @@ def show_market():
             bar["收"],
             bar["成交量"],
         ]
-        data = data.tail(40).reset_index(drop=True)
+        data = data.tail(CHART_BAR_COUNT).reset_index(drop=True)
         st.session_state.market_data[name] = data
 
         change = close_price - start_price
@@ -96,8 +105,8 @@ def show_market():
             )
 
             chart_data = data.copy()
-            for days in [5, 10, 20]:
-                chart_data[f"MA{days}"] = chart_data["收"].rolling(days).mean()
+            for window in MOVING_AVERAGE_WINDOWS:
+                chart_data[f"MA{window}"] = chart_data["收"].rolling(window).mean()
 
             fig = make_subplots(
                 rows=2,
@@ -124,12 +133,12 @@ def show_market():
                 col=1,
             )
 
-            for days in [5, 10, 20]:
+            for window in MOVING_AVERAGE_WINDOWS:
                 fig.add_trace(
                     go.Scatter(
                         x=chart_data["时间"],
-                        y=chart_data[f"MA{days}"],
-                        name=f"MA{days}",
+                        y=chart_data[f"MA{window}"],
+                        name=f"MA{window}",
                     ),
                     row=1,
                     col=1,
@@ -168,7 +177,7 @@ def show_market():
                 key=f"chart_{name}",
             )
 
-            recent = data.tail(6).iloc[::-1][
+            recent = data.tail(RECENT_ROW_COUNT).iloc[::-1][
                 ["时间", "开", "高", "低", "收", "成交量"]
             ].copy()
             recent["时间"] = recent["时间"].dt.strftime("%H:%M")

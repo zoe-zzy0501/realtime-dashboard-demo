@@ -14,9 +14,17 @@
 
 https://zoe-zzy0501-realtime-dashboard-demo-app-5qwn4d.streamlit.app/
 
+## 项目结构
+
+- `app.py`：看板页面、图表和定时刷新逻辑
+- `data_source.py`：模拟行情数据源，也是后续接入真实行情的替换入口
+- `requirements.txt`：运行看板需要的 Python 依赖
+- `realtime_dashboard_demo.ipynb`：在 Notebook 中查看代码和启动项目的辅助入口
+- `启动本地看板.command`：macOS 本地启动脚本
+
 ## 本地运行
 
-Mac 可以直接双击 `启动本地看板.command`。第一次会安装依赖，稍等一会儿浏览器就会打开：
+Mac 可以直接双击 `启动本地看板.command`。脚本会优先使用 Python 3.12，没有对应安装时则使用系统中的 `python3`。第一次会安装依赖，稍等一会儿浏览器就会打开：
 
 ```text
 http://localhost:8501

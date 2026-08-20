@@ -1,2 +1,3 @@
+# Keep Streamlit telemetry disabled for both local and hosted demo runs.
 [browser]
 gatherUsageStats = false
