@@ -27,6 +27,19 @@ st.set_page_config(page_title=PAGE_TITLE, layout="wide")
 st.title(PAGE_TITLE)
 st.caption(f"随机数据演示，每 {REFRESH_SECONDS} 秒刷新一次")
 
+st.sidebar.header("价格预警")
+st.sidebar.caption("最新价超过设定值时，页面会显示预警提示。")
+alert_thresholds = {
+    name: st.sidebar.number_input(
+        f"{name} 预警价",
+        min_value=1,
+        value=start_price + 20,
+        step=1,
+        key=f"alert_threshold_{name}",
+    )
+    for name, start_price in PRODUCTS.items()
+}
+
 
 # 第一次打开时先准备一段历史数据，避免图表为空
 if "market_data" not in st.session_state:
@@ -85,6 +98,7 @@ def show_market():
         change_pct = change / start_price * 100
         bid_price = close_price - 2
         ask_price = close_price + 2
+        alert_threshold = int(alert_thresholds[name])
 
         with panel:
             st.subheader(name)
@@ -97,6 +111,17 @@ def show_market():
             )
             p2.metric("买价", str(bid_price))
             p3.metric("卖价", str(ask_price))
+
+            if close_price > alert_threshold:
+                st.error(
+                    f"价格预警：最新价 {close_price} 已超过设定值 "
+                    f"{alert_threshold}"
+                )
+            else:
+                st.caption(
+                    f"预警价 {alert_threshold}  |  "
+                    f"距离预警价 {alert_threshold - close_price}"
+                )
 
             st.caption(
                 "1分钟  |  "
@@ -129,6 +154,16 @@ def show_market():
                     increasing_fillcolor="#ef5350",
                     decreasing_fillcolor="#26a69a",
                 ),
+                row=1,
+                col=1,
+            )
+
+            fig.add_hline(
+                y=alert_threshold,
+                line_dash="dot",
+                line_color="#ff9800",
+                annotation_text=f"预警价 {alert_threshold}",
+                annotation_position="top left",
                 row=1,
                 col=1,
             )

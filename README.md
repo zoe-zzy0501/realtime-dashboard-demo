@@ -9,6 +9,7 @@
 - MA5、MA10、MA20
 - 成交量
 - 最近几条数据
+- 可分别设置两个品种的价格预警阈值
 
 在线页面：
 
@@ -43,6 +44,29 @@ http://localhost:8501
 现在每 3 秒增加一条模拟数据。网页上的一分钟 K 线只是演示效果，所以时间走得比真实行情快。
 
 `localhost` 只能在当前电脑打开；上面的在线页面由 Streamlit Community Cloud 运行，可以直接发给其他人。
+
+## Docker 部署
+
+项目可以使用 Docker 部署到公司内网服务器或国内云服务器：
+
+```bash
+docker compose up -d --build
+```
+
+容器启动后，通过下面的地址访问：
+
+```text
+http://服务器IP:8501
+```
+
+在腾讯云测试时，需要在实例防火墙中允许 TCP 8501 端口。正式对外使用时，建议通过 Nginx 配置域名、HTTPS 和访问权限，不直接暴露测试端口。
+
+查看运行状态或日志：
+
+```bash
+docker compose ps
+docker compose logs -f dashboard
+```
 
 ## 数据从哪里换
 
