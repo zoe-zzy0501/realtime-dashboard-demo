@@ -1,5 +1,5 @@
 # Dashboard runtime
-streamlit==1.62.0
+streamlit==1.50.0
 
 # Data processing and charts
 pandas==2.3.3

@@ -1,3 +1,7 @@
 # Keep Streamlit telemetry disabled for both local and hosted demo runs.
 [browser]
 gatherUsageStats = false
+
+# Improve compatibility with mobile browsers and restrictive network proxies.
+[server]
+enableWebsocketCompression = false

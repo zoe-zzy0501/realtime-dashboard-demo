@@ -15,6 +15,10 @@
 
 https://zoe-zzy0501-realtime-dashboard-demo-app-5qwn4d.streamlit.app/
 
+腾讯云演示地址：
+
+http://124.222.176.38/
+
 ## 项目结构
 
 - `app.py`：看板页面、图表和定时刷新逻辑
@@ -56,10 +60,10 @@ docker compose up -d --build
 容器启动后，通过下面的地址访问：
 
 ```text
-http://服务器IP:8501
+http://服务器IP
 ```
 
-在腾讯云测试时，需要在实例防火墙中允许 TCP 8501 端口。正式对外使用时，建议通过 Nginx 配置域名、HTTPS 和访问权限，不直接暴露测试端口。
+当前 Compose 配置同时保留 80 和 8501 两个入口。在腾讯云测试时，需要在实例防火墙中允许对应的 TCP 端口。正式对外使用时，建议通过 Nginx 配置域名、HTTPS 和访问权限，不直接暴露测试端口。
 
 查看运行状态或日志：
 
