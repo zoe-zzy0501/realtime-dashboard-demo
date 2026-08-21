@@ -207,7 +207,7 @@ def show_market():
 
             st.plotly_chart(
                 fig,
-                width="stretch",
+                use_container_width=True,
                 config={"displayModeBar": False},
                 key=f"chart_{name}",
             )
