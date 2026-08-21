@@ -1,5 +1,7 @@
 FROM python:3.12-slim
 
+ARG PIP_INDEX_URL=https://pypi.org/simple
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
@@ -7,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 COPY requirements.txt ./
-RUN python -m pip install -r requirements.txt
+RUN python -m pip install --index-url "${PIP_INDEX_URL}" -r requirements.txt
 
 COPY app.py data_source.py ./
 COPY .streamlit/config.toml ./.streamlit/config.toml
